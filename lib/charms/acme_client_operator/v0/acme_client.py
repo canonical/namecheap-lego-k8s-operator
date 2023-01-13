@@ -21,20 +21,20 @@ from charms.acme_client_operator.v0.acme_client import AcmeClient
 from ops.main import main
 class ExampleAcmeCharm(AcmeClient):
     def __init__(self, *args):
-        super().__init__(*args)
+        super().__init__(*args, plugin="namecheap")
         self._server = "https://acme-staging-v02.api.letsencrypt.org/directory"
+        self.framework.observe(self.on.config_changed, self._on_config_changed)
 
-    @property
-    def _domain(self) -> Optional[str]:
-        return self.model.config.get("domain")
-
-    @property
-    def _email(self) -> Optional[str]:
-        return self.model.config.get("email")
-
-    @property
-    def _plugin(self) -> str:
-        return "namecheap"
+    def _on_config_changed(self, _):
+        try:
+            self.update_generic_acme_config(
+                email="example@email.com",
+                server=self._server
+            )
+        except ValueError as e:
+            # Handle exception, for example set status
+            return
+        self.unit.status = ActiveStatus()
 
     @property
     def _plugin_config(self):
@@ -93,13 +93,10 @@ class AcmeClient(CharmBase):
         self._csr_path = "/tmp/csr.pem"
         self._certs_path = "/tmp/.lego/certificates/"
         self._container_name = list(self.meta.containers.values())[0].name
-        container_name_with_underscores = self._container_name.replace(
-            "-", "_")
+        container_name_with_underscores = self._container_name.replace("-", "_")
         self.tls_certificates = TLSCertificatesProvidesV1(self, "certificates")
-        pebble_ready_event = getattr(
-            self.on, f"{container_name_with_underscores}_pebble_ready")
-        self.framework.observe(
-            pebble_ready_event, self._on_acme_client_pebble_ready)
+        pebble_ready_event = getattr(self.on, f"{container_name_with_underscores}_pebble_ready")
+        self.framework.observe(pebble_ready_event, self._on_acme_client_pebble_ready)
         self.framework.observe(
             self.tls_certificates.on.certificate_creation_request,
             self._on_certificate_creation_request,
@@ -113,8 +110,7 @@ class AcmeClient(CharmBase):
             event.defer()
             return
         if not self._server:
-            self.unit.status = BlockedStatus(
-                "Server address was not provided.")
+            self.unit.status = BlockedStatus("Server address was not provided.")
             event.defer()
             return
         if not self._email_is_valid(self._email):
@@ -133,16 +129,13 @@ class AcmeClient(CharmBase):
             return
 
         if not _container.can_connect():
-            self.unit.status = WaitingStatus(
-                "Waiting for container to be ready")
+            self.unit.status = WaitingStatus("Waiting for container to be ready")
             event.defer()
             return
 
         try:
-            csr = x509.load_pem_x509_csr(
-                event.certificate_signing_request.encode())
-            subject_value = csr.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[
-                0].value
+            csr = x509.load_pem_x509_csr(event.certificate_signing_request.encode())
+            subject_value = csr.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
             if isinstance(subject_value, bytes):
                 subject = subject_value.decode()
             else:
@@ -155,8 +148,7 @@ class AcmeClient(CharmBase):
             path=self._csr_path, make_dirs=True, source=event.certificate_signing_request.encode()
         )
 
-        logger.info(
-            "Received Certificate Creation Request for domain %s", subject)
+        logger.info("Received Certificate Creation Request for domain %s", subject)
         process = _container.exec(
             self._cmd, timeout=300, working_dir="/tmp", environment=self._plugin_config
         )
@@ -164,8 +156,7 @@ class AcmeClient(CharmBase):
             stdout, error = process.wait_output()
             logger.info(f"Return message: {stdout}, {error}")
         except ExecError as e:
-            self.unit.status = BlockedStatus(
-                "Error getting certificate. Check logs for details")
+            self.unit.status = BlockedStatus("Error getting certificate. Check logs for details")
             logger.error("Exited with code %d. Stderr:", e.exit_code)
             for line in e.stderr.splitlines():  # type: ignore
                 logger.error("    %s", line)
