@@ -7,24 +7,6 @@ to provide signed certificates from an ACME servers, using LEGO
 (https://go-acme.github.io/lego).
 It uses the  `acme_client` library to get the certificate from the ACME server.
 
-## Config
-
-### Required configuration properties
-```
-email: <Account email address>
-domain: <Domain to request certificate for>
-namecheap-username: <Namecheap API user>
-namecheap-api-key: <Namecheap API key>
-```
-
-### Optional configuration properties
-```
-namecheap-http-timeout: <API request timeout in seconds>
-namecheap-polling-interval: <Time between DNS propagation checks in seconds>
-namecheap-propagation-timeout: <Maximum waiting time for DNS propagation in seconds>
-namecheap-ttl: <The TTL of the TXT record used for the DNS challenge>
-namecheap-sandbox: <Use Namecheap sandbox API>
-```
 ## Usage
 
 Deploy `namecheap-lego-operator`:
@@ -44,6 +26,25 @@ namecheap-lego:
 Relate it to a `tls-certificates-requirer` charm:
 
 `juju relate lego-operator:certificates tls-certificates-requirer`
+
+## Config
+
+### Required configuration properties
+```
+email: <Account email address>
+domain: <Domain to request certificate for>
+namecheap-username: <Namecheap API user>
+namecheap-api-key: <Namecheap API key>
+```
+
+### Optional configuration properties
+```
+namecheap-http-timeout: <API request timeout in seconds>
+namecheap-polling-interval: <Time between DNS propagation checks in seconds>
+namecheap-propagation-timeout: <Maximum waiting time for DNS propagation in seconds>
+namecheap-ttl: <The TTL of the TXT record used for the DNS challenge>
+namecheap-sandbox: <Use Namecheap sandbox API>
+```
 
 ## Relations
 
