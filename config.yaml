@@ -2,9 +2,6 @@ options:
   email:
     type: string
     description: Account email address.
-  domain:
-    type: string
-    description: Domain to request a certificate for.
   namecheap-api-user:
     type: string
     description: Namecheap API user
