@@ -57,7 +57,7 @@ jobs:
   
   publish-charm:
     name: Publish Charm
-    needs: integration-test
+    needs: integration-tests
     runs-on: ubuntu-20.04
     if: ${{ github.event_name == 'push' }}
     steps:
