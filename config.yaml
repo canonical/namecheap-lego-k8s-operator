@@ -2,6 +2,10 @@ options:
   email:
     type: string
     description: Account email address.
+  server:
+    type: string
+    description: The ACME server URL.
+    default: "https://acme-staging-v02.api.letsencrypt.org/directory"
   namecheap-api-user:
     type: string
     description: Namecheap API user

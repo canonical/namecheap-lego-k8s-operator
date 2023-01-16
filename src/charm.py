@@ -24,37 +24,30 @@ class NamecheapAcmeOperatorCharm(AcmeClient):
 
     @property
     def _namecheap_api_key(self) -> str:
-        """Returns email from config."""
         return self.model.config.get("namecheap-api-key")
 
     @property
     def _namecheap_api_user(self) -> str:
-        """Returns email from config."""
         return self.model.config.get("namecheap-api-user")
 
     @property
     def _namecheap_http_timeout(self) -> Optional[str]:
-        """Returns email from config."""
         return str(self.model.config.get("namecheap-http-timeout"))
 
     @property
     def _namecheap_polling_interval(self) -> Optional[str]:
-        """Returns email from config."""
         return str(self.model.config.get("namecheap-polling-interval"))
 
     @property
     def _namecheap_propagation_timeout(self) -> Optional[str]:
-        """Returns email from config."""
         return str(self.model.config.get("namecheap-propagation-timeout"))
 
     @property
     def _namecheap_ttl(self) -> Optional[str]:
-        """Returns email from config."""
         return str(self.model.config.get("namecheap-ttl"))
 
     @property
     def _namecheap_sandbox(self) -> Optional[str]:
-        """Returns email from config."""
         return self.model.config.get("namecheap-sandbox")
 
     @property
@@ -87,10 +80,7 @@ class NamecheapAcmeOperatorCharm(AcmeClient):
             )
             return
         try:
-            self.update_generic_acme_config(
-                email=self.model.config.get("email"),
-                server=self._server,
-            )
+            self.validate_generic_acme_config()
         except ValueError as e:
             logger.error("Invalid config: %s", e)
             self.unit.status = BlockedStatus(str(e))
