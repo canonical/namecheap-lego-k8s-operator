@@ -54,7 +54,7 @@ class NamecheapAcmeOperatorCharm(AcmeClient):
     def _plugin_config(self) -> Dict[str, str]:
         """Plugin specific additional configuration for the command."""
         additional_config = {}
-        additional_config.update({"NAMECHEAP_API_KEY": self._namecheap_api_user})
+        additional_config.update({"NAMECHEAP_API_USER": self._namecheap_api_user})
         additional_config.update({"NAMECHEAP_API_KEY": self._namecheap_api_key})
         if self._namecheap_ttl:
             additional_config.update({"NAMECHEAP_TTL": self._namecheap_ttl})
