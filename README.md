@@ -17,7 +17,6 @@ If you wish to change the default configuration, create a YAML configuration fil
 ```yaml
 namecheap-lego:
   email: <Account email address>
-  domain: <Domain to request certificate for>
   namecheap-username: <Namecheap API user>
   namecheap-api-key: <Namecheap API key>
 ```
@@ -25,14 +24,13 @@ namecheap-lego:
 
 Relate it to a `tls-certificates-requirer` charm:
 
-`juju relate lego-operator:certificates tls-certificates-requirer`
+`juju relate namecheap-lego-operator:certificates tls-certificates-requirer`
 
 ## Config
 
 ### Required configuration properties
 ```
 email: <Account email address>
-domain: <Domain to request certificate for>
 namecheap-username: <Namecheap API user>
 namecheap-api-key: <Namecheap API key>
 ```
@@ -52,7 +50,8 @@ namecheap-sandbox: <Use Namecheap sandbox API>
 
 ## OCI Images
 
-`goacme/lego`
+This charm uses a [Lego](https://github.com/canonical/lego-rock) image that is built using Rockcraft.
+`ghcr.io/canonical/lego:4.9.1`
 
 ## Contributing
 
