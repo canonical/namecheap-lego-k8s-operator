@@ -52,7 +52,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         with:
           name: tested-charm
-          path: .tox/**/namecheap-lego-operator_ubuntu-20.04-amd64.charm
+          path: .tox/**/namecheap-acme-operator_ubuntu-20.04-amd64.charm
           retention-days: 5
   
   publish-charm:
@@ -70,14 +70,14 @@ jobs:
         with:
           name: tested-charm
       - name: Move charm in current directory
-        run: find ./ -name namecheap-lego-operator_ubuntu-20.04-amd64.charm -exec mv -t ./ {} \;
+        run: find ./ -name namecheap-acme-operator_ubuntu-20.04-amd64.charm -exec mv -t ./ {} \;
       - name: Select Charmhub channel
         uses: canonical/charming-actions/channel@2.0.0-rc
         id: channel
       - name: Upload charm to Charmhub edge channel
         env:
           CHARMCRAFT_AUTH: "${{ secrets.CHARMHUB_TOKEN }}"
-        run: charmcraft upload ./namecheap-lego-operator_ubuntu-20.04-amd64.charm --release ${{ steps.channel.outputs.name }}
+        run: charmcraft upload ./namecheap-acme-operator_ubuntu-20.04-amd64.charm --release ${{ steps.channel.outputs.name }}
         id: upload
       - name: Chmod charmcraft logs
         if: steps.upload.conclusion == 'failure'
