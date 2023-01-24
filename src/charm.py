@@ -76,7 +76,7 @@ class NamecheapAcmeOperatorCharm(AcmeClient):
         """Handles config-changed events."""
         if not self._namecheap_api_key or not self._namecheap_api_user:
             self.unit.status = BlockedStatus(
-                "namecheap-api-key and namecheap-api-user must be set"
+                "namecheap-api-key and namecheap-api-user must be set."
             )
             return
         try:
