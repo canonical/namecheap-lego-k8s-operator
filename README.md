@@ -7,7 +7,7 @@ TLS certificates from Let's Encrypt or any other ACME server.
 
 ## Pre-requisites
 
-Charms that require those certificates need to implement the requirer side of the `tls-certificates-interface`.
+Charms that require those certificates need to implement the requirer side of the [`tls-certificates-interface`](https://github.com/canonical/tls-certificates-interface).
 
 ## Usage
 
