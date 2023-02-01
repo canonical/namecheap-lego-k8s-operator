@@ -2,16 +2,16 @@
 
 ## Description
 
-Namecheap ACME operator implements the provider side of the `tls-certificates-interface`
-to provide signed certificates from an ACME servers, using LEGO
-(https://go-acme.github.io/lego).
+Use the Namecheap ACME operator in your Juju model to secure your web application with 
+TLS certificates from Let's Encrypt or any other ACME server.
+
+## Pre-requisites
+
+Charms that require those certificates need to implement the requirer side of the `tls-certificates-interface`.
 
 ## Usage
 
-Deploy `namecheap-acme-operator`:
-
 Create a YAML configuration file with the following fields:
-
 
 ```yaml
 namecheap-acme-operator:
@@ -19,11 +19,18 @@ namecheap-acme-operator:
   namecheap-username: <Namecheap API user>
   namecheap-api-key: <Namecheap API key>
 ```
-`juju deploy namecheap-acme-operator --config <yaml config file>`
+
+Deploy `namecheap-acme-operator`:
+
+```bash
+juju deploy namecheap-acme-operator --config <yaml config file>
+```
 
 Relate it to a `tls-certificates-requirer` charm:
 
-`juju relate namecheap-acme-operator:certificates <tls-certificates-requirer>`
+```bash
+juju relate namecheap-acme-operator:certificates <tls-certificates-requirer>
+```
 
 ## Config
 
@@ -48,12 +55,4 @@ namecheap-sandbox: <Use Namecheap sandbox API>
 `certificates`: `tls-certificates-interface` provider
 
 ## OCI Images
-
 -  [Lego Rock Image](https://github.com/canonical/lego-rock)
-
-## Contributing
-
-Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines on enhancements to this
-charm following best practice guidelines, and
-[CONTRIBUTING.md](https://github.com/canonical/namecheap-acme-operator/blob/main/CONTRIBUTING.md) for developer
-guidance.
