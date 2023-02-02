@@ -55,4 +55,5 @@ namecheap-sandbox: <Use Namecheap sandbox API>
 `certificates`: `tls-certificates-interface` provider
 
 ## OCI Images
+
 -  [Lego Rock Image](https://github.com/canonical/lego-rock)

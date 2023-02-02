@@ -74,18 +74,24 @@ class NamecheapAcmeOperatorCharm(AcmeClient):
 
     def _on_config_changed(self, _):
         """Handles config-changed events."""
+        if not self._validate_namecheap_config():
+            return
+        if not self.validate_generic_acme_config():
+            return
+        self.unit.status = ActiveStatus()
+
+    def _validate_namecheap_config(self) -> bool:
+        """Checks whether required config options are set.
+
+        Returns:
+            bool: True/False
+        """
         if not self._namecheap_api_key or not self._namecheap_api_user:
             self.unit.status = BlockedStatus(
                 "namecheap-api-key and namecheap-api-user must be set"
             )
-            return
-        try:
-            self.validate_generic_acme_config()
-        except ValueError as e:
-            logger.error("Invalid config: %s", e)
-            self.unit.status = BlockedStatus(str(e))
-            return
-        self.unit.status = ActiveStatus()
+            return False
+        return True
 
 
 if __name__ == "__main__":  # pragma: nocover
