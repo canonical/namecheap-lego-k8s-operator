@@ -1,7 +1,5 @@
 # Contributing
 
-## Developing
-
 You can use the environments created by `tox` for development:
 
 ```bash
@@ -9,25 +7,11 @@ tox --notest -e unit
 source .tox/unit/bin/activate
 ```
 
-## Testing
-
-### Unit tests
+Use `tox` to run the tests:
 
 ```bash
-tox -e unit
+tox -e unit  # Unit tests
+tox -e static  # Static analysis
+tox -e lint  # Linting
+tox -e integration  # Integration tests
 ```
-
-### Static analysis
-
-```bash
-tox -e static
-```
-
-### Linting
-
-```bash
-tox -e lint
-```
-## Canonical Contributor Agreement
-
-Please check out our [contributor agreement](https://ubuntu.com/legal/contributors) if you're interested in contributing to the solution.
