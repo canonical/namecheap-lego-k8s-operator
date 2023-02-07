@@ -2,8 +2,7 @@
 
 ## Description
 
-Use the Namecheap ACME operator in your Juju model to secure your web application with 
-TLS certificates from Let's Encrypt or any other ACME server.
+Let's Encrypt certificates in the Juju ecosystem for Namecheap users.
 
 ## Pre-requisites
 
@@ -35,20 +34,20 @@ juju relate namecheap-acme-operator:certificates <tls-certificates-requirer>
 ## Config
 
 ### Required configuration properties
-```
-email: <Account email address>
-namecheap-username: <Namecheap API user>
-namecheap-api-key: <Namecheap API key>
-```
+
+- email: Account email address
+- namecheap-username: Namecheap API user
+- namecheap-api-key: Namecheap API key
 
 ### Optional configuration properties
-```
-namecheap-http-timeout: <API request timeout in seconds>
-namecheap-polling-interval: <Time between DNS propagation checks in seconds>
-namecheap-propagation-timeout: <Maximum waiting time for DNS propagation in seconds>
-namecheap-ttl: <The TTL of the TXT record used for the DNS challenge>
-namecheap-sandbox: <Use Namecheap sandbox API>
-```
+
+- server: Let's Encrypt server to use (default: `https://acme-v02.api.letsencrypt.org/directory`)
+- namecheap-http-timeout: API request timeout in seconds (default: `60`)
+- namecheap-polling-interval: Time between DNS propagation checks in seconds (default: `15`)
+- namecheap-propagation-timeout: Maximum waiting time for DNS propagation in seconds (default: `3600`)
+- namecheap-ttl: The TTL of the TXT record used for the DNS challenge in seconds (default: `120`)
+- namecheap-sandbox: Use Namecheap sandbox API (default: `false`)
+
 
 ## Relations
 
