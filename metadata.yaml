@@ -11,7 +11,10 @@ description: |
 summary: |
   ACME operator implementing the provider side of the `tls-certificates`
   interface to get signed certificates from the `Let's Encrypt` ACME server using namecheap DNS.
-website: https://github.com/canonical/namecheap-acme-operator
+website: https://charmhub.io/namecheap-acme-operator
+source: https://github.com/canonical/namecheap-acme-operator
+issues: https://github.com/canonical/namecheap-acme-operator/issues
+docs: https://discourse.charmhub.io/t/namecheap-acme-operator-docs-index/12521
 
 provides:
   certificates:
