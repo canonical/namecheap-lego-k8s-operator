@@ -1,6 +1,5 @@
-# namecheap-acme-operator
-
-## Description
+# Namecheap ACME Operator (K8s)
+[![CharmHub Badge](https://charmhub.io/namecheap-acme-operator/badge.svg)](https://charmhub.io/namecheap-acme-operator)
 
 Let's Encrypt certificates in the Juju ecosystem for Namecheap users.
 
