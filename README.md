@@ -1,5 +1,5 @@
-# Namecheap ACME Operator (K8s)
-[![CharmHub Badge](https://charmhub.io/namecheap-acme-operator/badge.svg)](https://charmhub.io/namecheap-acme-operator)
+# Namecheap LEGO Operator (K8s)
+[![CharmHub Badge](https://charmhub.io/namecheap-lego-k8s/badge.svg)](https://charmhub.io/namecheap-lego-k8s)
 
 Let's Encrypt certificates in the Juju ecosystem for Namecheap users.
 
@@ -12,22 +12,22 @@ Charms that require those certificates need to implement the requirer side of th
 Create a YAML configuration file with the following fields:
 
 ```yaml
-namecheap-acme-operator:
+namecheap-lego-k8s:
   email: <Account email address>
   namecheap-username: <Namecheap API user>
   namecheap-api-key: <Namecheap API key>
 ```
 
-Deploy `namecheap-acme-operator`:
+Deploy `namecheap-lego-k8s`:
 
 ```bash
-juju deploy namecheap-acme-operator --config <yaml config file>
+juju deploy namecheap-lego-k8s --config <yaml config file>
 ```
 
 Relate it to a `tls-certificates-requirer` charm:
 
 ```bash
-juju relate namecheap-acme-operator:certificates <tls-certificates-requirer>
+juju relate namecheap-lego-k8s:certificates <tls-certificates-requirer>
 ```
 
 ## Config

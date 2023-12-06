@@ -6,12 +6,12 @@ import unittest
 from ops.model import ActiveStatus, BlockedStatus
 from ops.testing import Harness
 
-from charm import NamecheapAcmeOperatorCharm
+from charm import NamecheapLegoK8s
 
 
 class TestCharm(unittest.TestCase):
     def setUp(self):
-        self.harness = Harness(NamecheapAcmeOperatorCharm)
+        self.harness = Harness(NamecheapLegoK8s)
         self.harness.set_leader(True)
         self.harness.set_can_connect("lego", True)
         self.addCleanup(self.harness.cleanup)
