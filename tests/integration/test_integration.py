@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
 
@@ -8,21 +8,23 @@ from pathlib import Path
 
 import pytest
 import yaml
+from pytest_operator.plugin import OpsTest
 
 logger = logging.getLogger(__name__)
 
 METADATA = yaml.safe_load(Path("./metadata.yaml").read_text())
 APP_NAME = METADATA["name"]
 
+TLS_REQUIRER_CHARM_NAME = "tls-certificates-requirer"
 
+
+@pytest.fixture(scope="module")
 @pytest.mark.abort_on_fail
-async def test_build_and_deploy(ops_test):
-    """Build the charm-under-test and deploy it together with related charms.
-
-    Assert on the unit status before any relations/configurations take place.
-    """
+async def build_and_deploy(ops_test: OpsTest):
+    """Build the charm-under-test and deploy it."""
     charm = await ops_test.build_charm(".")
     resources = {"lego-image": METADATA["resources"]["lego-image"]["upstream-source"]}
+    assert ops_test.model
     await ops_test.model.deploy(
         charm,
         resources=resources,
@@ -34,11 +36,36 @@ async def test_build_and_deploy(ops_test):
             "namecheap-api-key": "example",
         },
     )
+    await ops_test.model.deploy(
+        TLS_REQUIRER_CHARM_NAME,
+        application_name=TLS_REQUIRER_CHARM_NAME,
+        channel="edge",
+    )
 
+
+@pytest.mark.abort_on_fail
+async def test_given_charm_is_built_when_deployed_then_status_is_active(
+    ops_test: OpsTest,
+    build_and_deploy,
+):
+    assert ops_test.model
     await ops_test.model.wait_for_idle(
         apps=[APP_NAME],
         status="active",
-        raise_on_blocked=True,
         timeout=1000,
     )
-    assert ops_test.model.applications[APP_NAME].units[0].workload_status == "active"
+
+
+async def test_given_tls_requirer_is_deployed_and_related_then_status_is_active(
+    ops_test: OpsTest,
+    build_and_deploy,
+):
+    assert ops_test.model
+    await ops_test.model.add_relation(
+        relation1=f"{APP_NAME}:certificates", relation2=f"{TLS_REQUIRER_CHARM_NAME}"
+    )
+    await ops_test.model.wait_for_idle(
+        apps=[TLS_REQUIRER_CHARM_NAME],
+        status="active",
+        timeout=1000,
+    )
