@@ -4,7 +4,7 @@
 LEGO operator implementing the provider side of the 
 [`tls-certificates` interface](https://github.com/canonical/tls-certificates-interface) 
 to get signed certificates from the `Let's Encrypt` ACME server
-using [NAMECHEAP](https://go-acme.github.io/lego/dns/namecheap/) plugin and the DNS-01 challenge.
+using [Namecheap](https://go-acme.github.io/lego/dns/namecheap/) plugin and the DNS-01 challenge.
 
 For more information including guides, integrations, configuration options, see [Namecheap LEGO's Charmhub page](https://charmhub.io/namecheap-lego-k8s).
 
