@@ -7,7 +7,8 @@
 import logging
 from typing import Dict, Optional
 
-from charms.lego_base_k8s.v0.lego_client import AcmeClient  # type: ignore[import]
+from charms.lego_base_k8s.v0.lego_client import AcmeClient
+from ops.framework import EventBase
 from ops.main import main
 from ops.model import ActiveStatus, BlockedStatus
 
@@ -18,17 +19,17 @@ class NamecheapLegoK8s(AcmeClient):
     """Main class that is instantiated every time an event occurs."""
 
     def __init__(self, *args):
-        """Uses the lego_client library to manage events."""
+        """Use the lego_client library to manage events."""
         super().__init__(*args, plugin="namecheap")
         self.framework.observe(self.on.config_changed, self._on_config_changed)
 
     @property
     def _namecheap_api_key(self) -> str:
-        return self.model.config.get("namecheap-api-key")
+        return self.model.config.get("namecheap-api-key", "")
 
     @property
     def _namecheap_api_user(self) -> str:
-        return self.model.config.get("namecheap-api-user")
+        return self.model.config.get("namecheap-api-user", "")
 
     @property
     def _namecheap_http_timeout(self) -> Optional[str]:
@@ -72,8 +73,8 @@ class NamecheapLegoK8s(AcmeClient):
             additional_config.update({"NAMECHEAP_HTTP_TIMEOUT": self._namecheap_http_timeout})
         return additional_config
 
-    def _on_config_changed(self, _):
-        """Handles config-changed events."""
+    def _on_config_changed(self, event: EventBase):
+        """Handle config-changed events."""
         if not self._validate_namecheap_config():
             return
         if not self.validate_generic_acme_config():
@@ -81,7 +82,7 @@ class NamecheapLegoK8s(AcmeClient):
         self.unit.status = ActiveStatus()
 
     def _validate_namecheap_config(self) -> bool:
-        """Checks whether required config options are set.
+        """Check whether required config options are set.
 
         Returns:
             bool: True/False

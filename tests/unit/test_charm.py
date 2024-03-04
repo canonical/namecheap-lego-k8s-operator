@@ -3,10 +3,9 @@
 
 import unittest
 
+from charm import NamecheapLegoK8s
 from ops.model import ActiveStatus, BlockedStatus
 from ops.testing import Harness
-
-from charm import NamecheapLegoK8s
 
 
 class TestCharm(unittest.TestCase):
