@@ -8,9 +8,7 @@ import logging
 from typing import Dict, Optional
 
 from charms.lego_base_k8s.v0.lego_client import AcmeClient
-from ops.framework import EventBase
 from ops.main import main
-from ops.model import ActiveStatus, BlockedStatus
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +19,6 @@ class NamecheapLegoK8s(AcmeClient):
     def __init__(self, *args):
         """Use the lego_client library to manage events."""
         super().__init__(*args, plugin="namecheap")
-        self.framework.observe(self.on.config_changed, self._on_config_changed)
 
     @property
     def _namecheap_api_key(self) -> str:
@@ -73,26 +70,15 @@ class NamecheapLegoK8s(AcmeClient):
             additional_config.update({"NAMECHEAP_HTTP_TIMEOUT": self._namecheap_http_timeout})
         return additional_config
 
-    def _on_config_changed(self, event: EventBase):
-        """Handle config-changed events."""
-        if not self._validate_namecheap_config():
-            return
-        if not self.validate_generic_acme_config():
-            return
-        self.unit.status = ActiveStatus()
-
-    def _validate_namecheap_config(self) -> bool:
+    def _validate_plugin_config(self) -> str:
         """Check whether required config options are set.
 
         Returns:
-            bool: True/False
+            str: Error message if required options are not set.
         """
         if not self._namecheap_api_key or not self._namecheap_api_user:
-            self.unit.status = BlockedStatus(
-                "namecheap-api-key and namecheap-api-user must be set"
-            )
-            return False
-        return True
+            return "namecheap-api-key and namecheap-api-user must be set"
+        return ""
 
 
 if __name__ == "__main__":  # pragma: nocover
