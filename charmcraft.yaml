@@ -17,3 +17,6 @@ parts:
       - rustc
       - cargo
       - pkg-config
+      - git
+    build-snaps:
+      - go

@@ -2,3 +2,4 @@ ops
 jsonschema
 cryptography
 cosl
+git+https://github.com/ghislainbourgeois/pylego/#egg=pylego
