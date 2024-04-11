@@ -5,7 +5,7 @@
 """Retrieves certificates from an ACME server using the namecheap dns provider."""
 
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, cast
 
 from charms.lego_base_k8s.v0.lego_client import AcmeClient
 from ops.main import main
@@ -22,11 +22,11 @@ class NamecheapLegoK8s(AcmeClient):
 
     @property
     def _namecheap_api_key(self) -> str:
-        return self.model.config.get("namecheap-api-key", "")
+        return cast(str, self.model.config.get("namecheap-api-key", ""))
 
     @property
     def _namecheap_api_user(self) -> str:
-        return self.model.config.get("namecheap-api-user", "")
+        return cast(str, self.model.config.get("namecheap-api-user", ""))
 
     @property
     def _namecheap_http_timeout(self) -> Optional[str]:
@@ -46,7 +46,7 @@ class NamecheapLegoK8s(AcmeClient):
 
     @property
     def _namecheap_sandbox(self) -> Optional[str]:
-        return self.model.config.get("namecheap-sandbox")
+        return cast(str, self.model.config.get("namecheap-sandbox"))
 
     @property
     def _plugin_config(self) -> Dict[str, str]:
