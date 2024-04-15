@@ -84,8 +84,8 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from ops.charm import CharmBase, CollectStatusEvent
 from ops.framework import EventBase
-from ops.model import ActiveStatus, BlockedStatus, WaitingStatus
-from ops.pebble import ExecError
+from ops.model import ActiveStatus, BlockedStatus
+import pylego
 
 # The unique Charmhub library identifier, never change it
 LIBID = "d67f92a288e54ab68a6b6349e9b472c4"
@@ -97,6 +97,9 @@ LIBAPI = 0
 # to 0 if you are raising the major API version
 LIBPATCH = 7
 
+PYDEPS = [
+    "git+https://github.com/ghislainbourgeois/pylego/#egg=pylego",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -115,8 +118,6 @@ class AcmeClient(CharmBase):
         super().__init__(*args)
         self._csr_path = "/tmp/csr.pem"
         self._certs_path = "/tmp/.lego/certificates/"
-        self._container_name = list(self.meta.containers.values())[0].name
-        self._container = self.unit.get_container(self._container_name)
         self._logging = LogForwarder(self, relation_name="logging")
         self.tls_certificates = TLSCertificatesProvidesV3(self, CERTIFICATES_RELATION_NAME)
         self.framework.observe(
@@ -130,10 +131,6 @@ class AcmeClient(CharmBase):
 
     def _on_collect_status(self, event: CollectStatusEvent) -> None:
         """Handle the collect status event."""
-        if not self._container.can_connect():
-            event.add_status(WaitingStatus("Waiting to be able to connect to vault unit"))
-            return
-
         if (err := self.validate_generic_acme_config()):
             event.add_status(
                 BlockedStatus(err)
@@ -148,8 +145,6 @@ class AcmeClient(CharmBase):
 
     def _sync_certificates(self, event: EventBase) -> None:
         """Go through all the certificates relations and handle outstanding requests."""
-        if not self._container.can_connect():
-            return
         if (err := self.validate_generic_acme_config()):
             logger.error(err)
             return
@@ -168,8 +163,6 @@ class AcmeClient(CharmBase):
 
     def _on_certificate_creation_request(self, event: CertificateCreationRequestEvent) -> None:
         """Handle certificate creation request event."""
-        if not self._container.can_connect():
-            return
         if (err := self.validate_generic_acme_config()):
             logger.error(err)
             return
@@ -217,37 +210,20 @@ class AcmeClient(CharmBase):
         else:
             return str(subject_value)
 
-    def _push_csr_to_workload(self, csr: str) -> None:
-        """Push CSR to workload container."""
-        self._container.push(path=self._csr_path, make_dirs=True, source=csr.encode())
-
-    def _execute_lego_cmd(self) -> bool:
-        """Execute lego command in workload container."""
-        process = self._container.exec(
-            self._cmd, timeout=300, working_dir="/tmp", environment=self._plugin_config
+    def _request_certificate_bundle(self, csr: str) -> List[str]:
+        chain_pem = pylego.run(
+            email=self._email or "",
+            server=self._server or "",
+            csr=bytes(csr, 'utf-8'),
+            plugin=self._plugin,
+            env=self._plugin_config
         )
-        try:
-            stdout, error = process.wait_output()
-            logger.info(f"Return message: {stdout}, {error}")
-        except ExecError as e:
-            logger.error("Exited with code %d. Stderr:", e.exit_code)
-            for line in e.stderr.splitlines():  # type: ignore
-                logger.error("    %s", line)
-            return False
-        return True
-
-    def _pull_certificates_from_workload(self, csr_subject: str) -> List[str]:
-        """Pull certificates from workload container."""
-        chain_pem = self._container.pull(path=f"{self._certs_path}{csr_subject}.crt")
-        return list(chain_pem.read().split("\n\n"))
+        return list(chain_pem.split("\n\n"))
 
     def _generate_signed_certificate(self, csr: str, relation_id: int):
         """Generate signed certificate from the ACME provider."""
         if not self.unit.is_leader():
             logger.debug("Only the leader can handle certificate requests")
-            return
-        if not self._container.can_connect():
-            logger.info("Container is not ready")
             return
         csr_subject = self._get_subject_from_csr(csr)
         if len(csr_subject) > 64:
@@ -257,16 +233,9 @@ class AcmeClient(CharmBase):
             )
             return
         logger.info("Received Certificate Creation Request for domain %s", csr_subject)
-        self._push_csr_to_workload(csr=csr)
-        if not self._execute_lego_cmd():
+        if not (signed_certificates := self._request_certificate_bundle(csr)):
             logger.error(
-                "Failed to execute lego command \
-                will try again in during the next update status event."
-            )
-            return
-        if not (signed_certificates := self._pull_certificates_from_workload(csr_subject)):
-            logger.error(
-                "Failed to pull certificates from workload \
+                "Failed to request certificate from certificate authority \
                 will try again in during the next update status event."
             )
             return
@@ -277,31 +246,6 @@ class AcmeClient(CharmBase):
             chain=list(reversed(signed_certificates)),
             relation_id=relation_id,
         )
-
-    @property
-    def _cmd(self) -> List[str]:
-        """Command to run to get the certificate.
-
-        Returns:
-            list[str]: Command and args to run.
-        """
-        if not self._email:
-            raise ValueError("Email address was not provided")
-        if not self._server:
-            raise ValueError("ACME server was not provided")
-        return [
-            "lego",
-            "--email",
-            self._email,
-            "--accept-tos",
-            "--csr",
-            self._csr_path,
-            "--server",
-            self._server,
-            "--dns",
-            self._plugin,
-            "run",
-        ]
 
     @property
     @abstractmethod
