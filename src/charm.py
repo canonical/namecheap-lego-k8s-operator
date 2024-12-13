@@ -5,7 +5,7 @@
 """Retrieves certificates from an ACME server using the namecheap dns provider."""
 
 import logging
-from typing import Dict, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 from charms.lego_base_k8s.v0.lego_client import AcmeClient
 from ops.main import main
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class NamecheapLegoK8s(AcmeClient):
     """Main class that is instantiated every time an event occurs."""
 
-    def __init__(self, *args):
+    def __init__(self, *args: Any):
         """Use the lego_client library to manage events."""
         super().__init__(*args, plugin="namecheap")
 
